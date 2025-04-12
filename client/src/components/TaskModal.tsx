@@ -166,20 +166,14 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
 
   // Submit do formulário
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Converter datas para formato ISO
-    const formattedData = {
-      ...values,
-      startDate: new Date(values.startDate),
-      dueDate: new Date(values.dueDate),
-    };
-
+    // Enviar os valores diretamente - o servidor vai converter as strings para Date
     if (isEditing && task) {
       updateTaskMutation.mutate({
         id: task.id,
-        data: formattedData,
+        data: values,
       });
     } else {
-      createTaskMutation.mutate(formattedData as InsertTask);
+      createTaskMutation.mutate(values as InsertTask);
     }
   };
 
@@ -188,6 +182,9 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Editar Tarefa" : "Nova Tarefa"}</DialogTitle>
+          <p className="text-sm text-muted-foreground pt-2">
+            {isEditing ? "Edite os detalhes da tarefa abaixo" : "Preencha os detalhes da nova tarefa"}
+          </p>
         </DialogHeader>
         
         <Form {...form}>

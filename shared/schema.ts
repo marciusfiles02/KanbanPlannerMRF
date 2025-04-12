@@ -66,6 +66,15 @@ export const insertTaskSchema = createInsertSchema(tasks).omit({
   id: true,
   createdAt: true,
 }).extend({
+  // Permite que as datas sejam enviadas como strings e as converte para Date
+  startDate: z.union([
+    z.string().transform(str => new Date(str)),
+    z.date()
+  ]),
+  dueDate: z.union([
+    z.string().transform(str => new Date(str)),
+    z.date()
+  ]),
   status: z.enum([
     TASK_STATUS.NOT_STARTED,
     TASK_STATUS.IN_PROGRESS, 
