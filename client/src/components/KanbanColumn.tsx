@@ -49,7 +49,7 @@ export function KanbanColumn({
                 index={index}
                 onEdit={() => onEditTask(task)}
                 onDelete={() => onDeleteTask(task.id)}
-                allTasks={tasks}
+                allTasks={allTasks}
               />
             ))}
             {provided.placeholder}
