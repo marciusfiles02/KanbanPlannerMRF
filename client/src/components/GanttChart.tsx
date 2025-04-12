@@ -1,7 +1,7 @@
 import { Task } from "@shared/schema";
-import { format, addDays, eachDayOfInterval, isSameDay, isWithinInterval, parseISO, differenceInDays } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { format, addDays, eachDayOfInterval, parseISO, differenceInDays } from "date-fns";
 import { getColorById } from "@/types";
+import { CheckIcon } from "lucide-react";
 
 interface GanttChartProps {
   tasks: Task[];
@@ -54,8 +54,8 @@ export function GanttChart({ tasks }: GanttChartProps) {
                   day.getDay() === 0 || day.getDay() === 6 ? 'bg-neutral-200' : ''
                 }`}
               >
-                <div>{format(day, 'dd', { locale: ptBR })}</div>
-                <div className="font-medium">{format(day, 'MMM', { locale: ptBR })}</div>
+                <div>{format(day, 'dd')}</div>
+                <div className="font-medium">{format(day, 'MMM')}</div>
               </div>
             ))}
           </div>
