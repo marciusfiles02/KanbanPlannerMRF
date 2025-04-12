@@ -64,13 +64,25 @@ export class MemStorage implements IStorage {
     return this.tasks.get(id);
   }
 
+  // Função para gerar código único de 3 dígitos para tarefas
+  private generateTaskCode(): string {
+    // Gera um número entre 100 e 999
+    return String(Math.floor(Math.random() * 900) + 100);
+  }
+  
   async createTask(insertTask: InsertTask): Promise<Task> {
     const id = this.taskCurrentId++;
     const currentDate = new Date();
     
+    // Gerar código único para a tarefa
+    const taskCode = this.generateTaskCode();
+    
     const task: Task = {
       ...insertTask,
       id,
+      taskCode,
+      description: insertTask.description || null,
+      predecessorId: insertTask.predecessorId || null,
       createdAt: currentDate
     };
     

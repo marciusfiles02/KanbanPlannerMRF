@@ -23,7 +23,7 @@ import {
   TaskColor,
   KanbanColumn
 } from "@shared/schema";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { COLORS, STATUSES } from "@/types";
@@ -38,17 +38,26 @@ import {
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Check } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
+  allTasks: Task[]; // Lista de todas as tarefas para seleção de predecessora
 }
 
 // Definindo tipo base para o formulário
 type TaskFormValues = {
   title: string;
   description?: string;
+  predecessorId?: number | null;
   startDate: string;
   dueDate: string;
   progress: number;
@@ -62,6 +71,7 @@ const formSchema = z.object({
     message: "O título deve ter pelo menos 3 caracteres",
   }),
   description: z.string().optional(),
+  predecessorId: z.number().nullable().optional(),
   startDate: z.string().refine((date) => !!date, {
     message: "A data de início é obrigatória",
   }),
@@ -91,7 +101,7 @@ const formSchema = z.object({
   ]),
 });
 
-export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
+export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModalProps) {
   const { toast } = useToast();
   const isEditing = !!task;
   
@@ -116,6 +126,7 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
       form.reset({
         title: task.title,
         description: task.description || "",
+        predecessorId: task.predecessorId || null,
         startDate: formatDateForInput(task.startDate),
         dueDate: formatDateForInput(task.dueDate),
         progress: task.progress,
@@ -127,6 +138,7 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
       form.reset({
         title: "",
         description: "",
+        predecessorId: null,
         startDate: new Date().toISOString().split("T")[0],
         dueDate: new Date().toISOString().split("T")[0],
         progress: 0,
@@ -243,6 +255,38 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
                   <FormControl>
                     <Textarea placeholder="Descreva a tarefa" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="predecessorId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tarefa Predecessora</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(value ? Number(value) : null)}
+                    value={field.value?.toString() || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma tarefa predecessora (opcional)" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Nenhuma</SelectItem>
+                      {allTasks
+                        .filter(t => !task || t.id !== task.id) // Não mostrar a tarefa atual como opção
+                        .map(t => (
+                          <SelectItem key={t.id} value={t.id.toString()}>
+                            {t.taskCode ? `[${t.taskCode}] ` : ''}{t.title}
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

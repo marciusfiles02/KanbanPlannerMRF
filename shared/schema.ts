@@ -46,6 +46,8 @@ export const tasks = pgTable("tasks", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
+  taskCode: text("task_code"), // Código de 3 dígitos da tarefa
+  predecessorId: integer("predecessor_id"), // ID da tarefa predecessora
   startDate: timestamp("start_date").notNull(),
   dueDate: timestamp("due_date").notNull(),
   progress: integer("progress").notNull().default(0),
