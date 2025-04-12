@@ -13,7 +13,16 @@ import { Slider } from "@/components/ui/slider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Task, InsertTask, TASK_STATUS, TASK_COLORS, KANBAN_COLUMNS } from "@shared/schema";
+import { 
+  Task, 
+  InsertTask, 
+  TASK_STATUS, 
+  TASK_COLORS, 
+  KANBAN_COLUMNS,
+  TaskStatus,
+  TaskColor,
+  KanbanColumn
+} from "@shared/schema";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -22,13 +31,11 @@ import { formatDateForInput } from "@/lib/utils";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Check } from "lucide-react";
 
@@ -37,6 +44,18 @@ interface TaskModalProps {
   onOpenChange: (open: boolean) => void;
   task: Task | null;
 }
+
+// Definindo tipo base para o formulário
+type TaskFormValues = {
+  title: string;
+  description?: string;
+  startDate: string;
+  dueDate: string;
+  progress: number;
+  status: TaskStatus;
+  color: TaskColor;
+  column: KanbanColumn;
+};
 
 const formSchema = z.object({
   title: z.string().min(3, {
@@ -52,8 +71,8 @@ const formSchema = z.object({
   progress: z.number().min(0).max(100),
   status: z.enum([
     TASK_STATUS.NOT_STARTED,
-    TASK_STATUS.IN_PROGRESS,
-    TASK_STATUS.PAUSED,
+    TASK_STATUS.IN_PROGRESS, 
+    TASK_STATUS.PAUSED, 
     TASK_STATUS.DONE
   ]),
   color: z.enum([
@@ -100,9 +119,9 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
         startDate: formatDateForInput(task.startDate),
         dueDate: formatDateForInput(task.dueDate),
         progress: task.progress,
-        status: task.status as any,
-        color: task.color as any,
-        column: task.column as any,
+        status: task.status as TaskStatus,
+        color: task.color as TaskColor,
+        column: task.column as KanbanColumn,
       });
     } else {
       form.reset({
@@ -118,9 +137,15 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
     }
   }, [task, form]);
 
+  // Tipo para o dado formatado com Date
+  type FormattedData = Omit<TaskFormValues, 'startDate' | 'dueDate'> & {
+    startDate: Date;
+    dueDate: Date;
+  };
+  
   // Mutação para criar nova tarefa
   const createTaskMutation = useMutation({
-    mutationFn: async (data: InsertTask) => {
+    mutationFn: async (data: FormattedData) => {
       const response = await apiRequest("POST", "/api/tasks", data);
       return response.json();
     },
@@ -143,7 +168,7 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
 
   // Mutação para atualizar tarefa
   const updateTaskMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<Task> }) => {
+    mutationFn: async ({ id, data }: { id: number; data: FormattedData }) => {
       const response = await apiRequest("PUT", `/api/tasks/${id}`, data);
       return response.json();
     },
@@ -165,15 +190,21 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
   });
 
   // Submit do formulário
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Enviar os valores diretamente - o servidor vai converter as strings para Date
+  const onSubmit = (values: TaskFormValues) => {
+    // Converter datas para objetos Date para satisfazer o TypeScript
+    const formattedData: FormattedData = {
+      ...values,
+      startDate: new Date(values.startDate),
+      dueDate: new Date(values.dueDate),
+    };
+
     if (isEditing && task) {
       updateTaskMutation.mutate({
         id: task.id,
-        data: values,
+        data: formattedData,
       });
     } else {
-      createTaskMutation.mutate(values as InsertTask);
+      createTaskMutation.mutate(formattedData);
     }
   };
 
