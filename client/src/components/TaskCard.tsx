@@ -9,12 +9,18 @@ interface TaskCardProps {
   index: number;
   onEdit: () => void;
   onDelete: () => void;
+  allTasks?: Task[]; // Lista completa de tarefas para encontrar a predecessora
 }
 
-export function TaskCard({ task, index, onEdit, onDelete }: TaskCardProps) {
+export function TaskCard({ task, index, onEdit, onDelete, allTasks = [] }: TaskCardProps) {
   const status = getStatusById(task.status as any);
   const color = getColorById(task.color as any);
   const isDueDateCritical = isDueDateNearOrOverdue(task.dueDate);
+  
+  // Encontrar tarefa predecessora, se existir
+  const predecessorTask = task.predecessorId 
+    ? allTasks.find(t => t.id === task.predecessorId) 
+    : null;
   
   return (
     <Draggable draggableId={`task-${task.id}`} index={index}>
@@ -30,8 +36,24 @@ export function TaskCard({ task, index, onEdit, onDelete }: TaskCardProps) {
             className={`w-full h-1 ${color.bgClass} rounded-full mb-3`}
           ></div>
           
+          {task.taskCode && (
+            <div className="text-xs font-mono text-neutral-500 mb-1">
+              #{task.taskCode}
+            </div>
+          )}
+          
           <h3 className="font-medium text-neutral-800 mb-2">{task.title}</h3>
           <p className="text-sm text-neutral-600 mb-3">{task.description}</p>
+          
+          {predecessorTask && (
+            <div className="text-xs text-neutral-500 mb-3 border-t border-neutral-100 pt-2">
+              <span className="font-medium">Predecessora:</span>{" "}
+              <span className="font-mono">
+                {predecessorTask.taskCode && `#${predecessorTask.taskCode} - `}
+                {predecessorTask.title}
+              </span>
+            </div>
+          )}
           
           <div className="flex items-center justify-between mb-2 text-xs text-neutral-500">
             <div>

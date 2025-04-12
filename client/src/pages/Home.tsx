@@ -172,6 +172,7 @@ export default function Home() {
         open={isCreateModalOpen}
         onOpenChange={handleCloseModal}
         task={editingTask}
+        allTasks={tasks}
       />
     </div>
   );
