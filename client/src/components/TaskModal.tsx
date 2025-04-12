@@ -267,8 +267,8 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                 <FormItem>
                   <FormLabel>Tarefa Predecessora</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(value ? Number(value) : null)}
-                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => field.onChange(value === "null" ? null : Number(value))}
+                    value={field.value?.toString() || "null"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -276,7 +276,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma</SelectItem>
+                      <SelectItem value="null">Nenhuma</SelectItem>
                       {allTasks
                         .filter(t => !task || t.id !== task.id) // Não mostrar a tarefa atual como opção
                         .map(t => (
