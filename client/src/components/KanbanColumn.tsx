@@ -6,6 +6,7 @@ import { Droppable } from "react-beautiful-dnd";
 interface KanbanColumnProps {
   column: ColumnType;
   tasks: Task[];
+  allTasks: Task[]; // Lista completa de tarefas para referência de predecessoras
   onEditTask: (task: Task) => void;
   onDeleteTask: (id: number) => void;
 }
@@ -13,6 +14,7 @@ interface KanbanColumnProps {
 export function KanbanColumn({ 
   column, 
   tasks, 
+  allTasks,
   onEditTask, 
   onDeleteTask 
 }: KanbanColumnProps) {
@@ -47,6 +49,7 @@ export function KanbanColumn({
                 index={index}
                 onEdit={() => onEditTask(task)}
                 onDelete={() => onDeleteTask(task.id)}
+                allTasks={tasks}
               />
             ))}
             {provided.placeholder}

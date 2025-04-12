@@ -72,6 +72,7 @@ export function KanbanBoard({
             tasks={columnTasks}
             onEditTask={onEditTask}
             onDeleteTask={onDeleteTask}
+            allTasks={tasks} // Passando todas as tarefas para acesso à predecessora
           />
         );
       })}
