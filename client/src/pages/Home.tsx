@@ -1,8 +1,9 @@
 import { KanbanBoard } from '@/components/KanbanBoard';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, FilterIcon } from 'lucide-react';
+import { PlusIcon, FilterIcon, BarChart2Icon } from 'lucide-react';
 import { TaskModal } from '@/components/TaskModal';
+import { GanttChartModal } from '@/components/GanttChartModal';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { Task, KANBAN_COLUMNS, KanbanColumn, columnToStatusMap } from '@/types';
@@ -11,6 +12,7 @@ import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 
 export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isGanttModalOpen, setIsGanttModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const { toast } = useToast();
 
@@ -146,6 +148,10 @@ export default function Home() {
               <FilterIcon className="h-4 w-4 mr-1.5" />
               <span className="hidden sm:inline">Filtrar</span>
             </Button>
+            <Button variant="outline" size="sm" onClick={() => setIsGanttModalOpen(true)}>
+              <BarChart2Icon className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Gantt</span>
+            </Button>
             <Button size="sm" onClick={() => setIsCreateModalOpen(true)}>
               <PlusIcon className="h-4 w-4 mr-1.5" />
               <span className="hidden sm:inline">Nova Tarefa</span>
@@ -173,6 +179,13 @@ export default function Home() {
         onOpenChange={handleCloseModal}
         task={editingTask}
         allTasks={tasks}
+      />
+
+      {/* Gantt Chart Modal */}
+      <GanttChartModal
+        open={isGanttModalOpen}
+        onOpenChange={setIsGanttModalOpen}
+        tasks={tasks}
       />
     </div>
   );
