@@ -234,16 +234,18 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Atualizar Data de Término quando a Data de Início ou Prazo mudar */}
-            {React.useEffect(() => {
-              const startDate = form.watch("startDate");
-              const deadlineDays = form.watch("deadlineDays");
-              
-              if (startDate && deadlineDays) {
-                let newDueDate = addDays(new Date(startDate), deadlineDays);
-                form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
-              }
-            }, [form.watch("startDate"), form.watch("deadlineDays")]);
+            <React.Fragment>
+              {/* Atualizar Data de Término quando a Data de Início ou Prazo mudar */}
+              {useEffect(() => {
+                const startDate = form.watch("startDate");
+                const deadlineDays = form.watch("deadlineDays");
+                
+                if (startDate && deadlineDays) {
+                  let newDueDate = addDays(new Date(startDate), deadlineDays);
+                  form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
+                }
+              }, [form.watch("startDate"), form.watch("deadlineDays")])}
+            </React.Fragment>
             
             {/* Verificar se a Data de Início é válida */}
             {React.useEffect(() => {
