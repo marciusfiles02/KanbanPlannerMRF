@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -51,21 +52,8 @@ interface TaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
-  allTasks: Task[]; // Lista de todas as tarefas para seleção de predecessora
+  allTasks: Task[];
 }
-
-// Definindo tipo base para o formulário
-type TaskFormValues = {
-  title: string;
-  description?: string;
-  predecessorId?: number | null;
-  startDate: string;
-  dueDate: string;
-  progress: number;
-  status: TaskStatus;
-  color: TaskColor;
-  column: KanbanColumn;
-};
 
 const formSchema = z.object({
   title: z.string().min(3, {
@@ -103,12 +91,13 @@ const formSchema = z.object({
   ]),
 });
 
+type TaskFormValues = z.infer<typeof formSchema>;
+
 export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModalProps) {
   const { toast } = useToast();
   const isEditing = !!task;
 
-  // Definir form com react-hook-form e zod
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<TaskFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -122,7 +111,6 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     },
   });
 
-  // Atualizar valores do formulário quando a tarefa mudar
   useEffect(() => {
     if (task) {
       form.reset({
@@ -151,13 +139,11 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     }
   }, [task, form]);
 
-  // Tipo para o dado formatado com Date
   type FormattedData = Omit<TaskFormValues, 'startDate' | 'dueDate'> & {
     startDate: Date;
     dueDate: Date;
   };
 
-  // Mutação para criar nova tarefa
   const createTaskMutation = useMutation({
     mutationFn: async (data: FormattedData) => {
       const response = await apiRequest("POST", "/api/tasks", data);
@@ -180,7 +166,6 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     },
   });
 
-  // Mutação para atualizar tarefa
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: FormattedData }) => {
       const response = await apiRequest("PUT", `/api/tasks/${id}`, data);
@@ -203,9 +188,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     },
   });
 
-  // Submit do formulário
   const onSubmit = (values: TaskFormValues) => {
-    // Converter datas para objetos Date para satisfazer o TypeScript
     const formattedData: FormattedData = {
       ...values,
       startDate: new Date(values.startDate),
@@ -222,6 +205,35 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     }
   };
 
+  // Atualizar Data de Término quando a Data de Início ou Prazo mudar
+  useEffect(() => {
+    const startDate = form.watch("startDate");
+    const deadlineDays = form.watch("deadlineDays");
+    
+    if (startDate && deadlineDays) {
+      let newDueDate = addDays(new Date(startDate), deadlineDays);
+      form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
+    }
+  }, [form.watch("startDate"), form.watch("deadlineDays")]);
+
+  // Verificar se a Data de Início é válida
+  useEffect(() => {
+    const startDate = form.watch("startDate");
+    const predecessorId = form.watch("predecessorId");
+    
+    if (startDate && predecessorId) {
+      const predecessorTask = allTasks.find(t => t.id === predecessorId);
+      if (predecessorTask) {
+        const minStartDate = addDays(new Date(predecessorTask.dueDate), 1);
+        const currentStartDate = new Date(startDate);
+        
+        if (currentStartDate < minStartDate) {
+          form.setValue("startDate", format(minStartDate, "yyyy-MM-dd"));
+        }
+      }
+    }
+  }, [form.watch("startDate"), form.watch("predecessorId")]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -234,39 +246,6 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <React.Fragment>
-              {/* Atualizar Data de Término quando a Data de Início ou Prazo mudar */}
-              <React.Fragment>
-                {useEffect(() => {
-                  const startDate = form.watch("startDate");
-                  const deadlineDays = form.watch("deadlineDays");
-                  
-                  if (startDate && deadlineDays) {
-                    let newDueDate = addDays(new Date(startDate), deadlineDays);
-                    form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
-                  }
-                }, [form.watch("startDate"), form.watch("deadlineDays")])}
-              </React.Fragment>
-              
-              {/* Verificar se a Data de Início é válida */}
-              <React.Fragment>
-                {useEffect(() => {
-                  const startDate = form.watch("startDate");
-                  const predecessorId = form.watch("predecessorId");
-                  
-                  if (startDate && predecessorId) {
-                    const predecessorTask = allTasks.find(t => t.id === predecessorId);
-                    if (predecessorTask) {
-                      const minStartDate = addDays(new Date(predecessorTask.dueDate), 1);
-                      const currentStartDate = new Date(startDate);
-                      
-                      if (currentStartDate < minStartDate) {
-                        form.setValue("startDate", format(minStartDate, "yyyy-MM-dd"));
-                      }
-                    }
-                  }
-                }, [form.watch("startDate"), form.watch("predecessorId")])}
-              </React.Fragment>
             <FormField
               control={form.control}
               name="title"
@@ -311,7 +290,6 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                         if (predecessorTask) {
                           let nextDay = addDays(new Date(predecessorTask.dueDate), 1);
 
-                          // Ajustar para o próximo dia útil se cair no fim de semana
                           while (isWeekend(nextDay)) {
                             nextDay = addDays(nextDay, 1);
                           }
@@ -330,7 +308,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                     <SelectContent>
                       <SelectItem value="null">Nenhuma</SelectItem>
                       {allTasks
-                        .filter(t => !task || t.id !== task.id) // Não mostrar a tarefa atual como opção
+                        .filter(t => !task || t.id !== task.id)
                         .map(t => (
                           <SelectItem key={t.id} value={t.id.toString()}>
                             {t.taskCode ? `[${t.taskCode}] ` : ''}{t.title}
