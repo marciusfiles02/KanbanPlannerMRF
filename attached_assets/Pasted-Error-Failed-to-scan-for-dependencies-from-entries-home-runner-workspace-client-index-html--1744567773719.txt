@@ -1,0 +1,93 @@
+Error:   Failed to scan for dependencies from entries:
+  /home/runner/workspace/client/index.html
+
+  ✘ [ERROR] Unexpected closing "form" tag does not match opening "React.Fragment" tag
+
+    client/src/components/TaskModal.tsx:508:12:
+      508 │           </form>
+          │             ~~~~
+          ╵             React.Fragment
+
+  The opening "React.Fragment" tag is here:
+
+    client/src/components/TaskModal.tsx:237:13:
+      237 │             <React.Fragment>
+          ╵              ~~~~~~~~~~~~~~
+
+
+✘ [ERROR] Unexpected closing "Form" tag does not match opening "form" tag
+
+    client/src/components/TaskModal.tsx:509:10:
+      509 │         </Form>
+          │           ~~~~
+          ╵           form
+
+  The opening "form" tag is here:
+
+    client/src/components/TaskModal.tsx:236:11:
+      236 │           <form onSubmit={form.handleSubmit(onSubmit)} className=...
+          ╵            ~~~~
+
+
+✘ [ERROR] Unexpected closing "DialogContent" tag does not match opening "Form" tag
+
+    client/src/components/TaskModal.tsx:510:8:
+      510 │       </DialogContent>
+          │         ~~~~~~~~~~~~~
+          ╵         Form
+
+  The opening "Form" tag is here:
+
+    client/src/components/TaskModal.tsx:235:9:
+      235 │         <Form {...form}>
+          ╵          ~~~~
+
+
+✘ [ERROR] Unexpected closing "Dialog" tag does not match opening "DialogContent" tag
+
+    client/src/components/TaskModal.tsx:511:6:
+      511 │     </Dialog>
+          │       ~~~~~~
+          ╵       DialogContent
+
+  The opening "DialogContent" tag is here:
+
+    client/src/components/TaskModal.tsx:227:7:
+      227 │       <DialogContent className="sm:max-w-md">
+          ╵        ~~~~~~~~~~~~~
+
+
+✘ [ERROR] The character "}" is not valid inside a JSX element
+
+    client/src/components/TaskModal.tsx:513:0:
+      513 │ }
+          │ ^
+          ╵ {'}'}
+
+  Did you mean to escape it as "{'}'}" instead?
+
+
+✘ [ERROR] Unexpected end of file before a closing "Dialog" tag
+
+    client/src/components/TaskModal.tsx:513:1:
+      513 │ }
+          │  ^
+          ╵  </Dialog>
+
+  The opening "Dialog" tag is here:
+
+    client/src/components/TaskModal.tsx:226:5:
+      226 │     <Dialog open={open} onOpenChange={onOpenChange}>
+          ╵      ~~~~~~
+
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:1472:15)
+    at /home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:945:25
+    at runOnEndCallbacks (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:1315:45)
+    at buildResponseToResult (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:943:7)
+    at /home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:955:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:954:54)
+    at handleRequest (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:647:17)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:672:7)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:600:7)
