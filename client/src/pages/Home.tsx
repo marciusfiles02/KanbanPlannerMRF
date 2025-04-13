@@ -101,7 +101,8 @@ export default function Home() {
       id: taskId,
       data: {
         column: newColumn,
-        status: newStatus
+        status: newStatus,
+        column: newColumn // Garantir que tanto coluna quanto status são atualizados
       }
     });
   };
