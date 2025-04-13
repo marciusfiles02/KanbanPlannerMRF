@@ -219,8 +219,18 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
   // Verificar se a Data de Início é válida
   useEffect(() => {
     const startDate = form.watch("startDate");
+    const dueDate = form.watch("dueDate");
     const predecessorId = form.watch("predecessorId");
     
+    if (startDate && dueDate) {
+      const currentStartDate = new Date(startDate);
+      const currentDueDate = new Date(dueDate);
+
+      if (currentStartDate >= currentDueDate) {
+        form.setValue("startDate", format(addDays(currentDueDate, -1), "yyyy-MM-dd"));
+      }
+    }
+
     if (startDate && predecessorId) {
       const predecessorTask = allTasks.find(t => t.id === predecessorId);
       if (predecessorTask) {
@@ -232,7 +242,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
         }
       }
     }
-  }, [form.watch("startDate"), form.watch("predecessorId")]);
+  }, [form.watch("startDate"), form.watch("dueDate"), form.watch("predecessorId")]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

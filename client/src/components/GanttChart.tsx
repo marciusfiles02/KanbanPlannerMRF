@@ -55,11 +55,14 @@ export function GanttChart({ tasks }: GanttChartProps) {
                   task.status === 'NOT_STARTED' ? 'bg-neutral-100 text-neutral-700' :
                   task.status === 'IN_PROGRESS' ? 'bg-orange-50 text-orange-700' :
                   task.status === 'PAUSED' ? 'bg-red-50 text-red-700' :
-                  'bg-green-50 text-green-700'
+                  task.status === 'DONE' ? 'bg-green-50 text-green-700' :
+                  'bg-neutral-100 text-neutral-700'
                 }`}>
                   {task.status === 'NOT_STARTED' ? 'Não iniciado' :
                    task.status === 'IN_PROGRESS' ? 'Fazendo' :
-                   task.status === 'PAUSED' ? 'Parado' : 'Feito'}
+                   task.status === 'PAUSED' ? 'Parado' :
+                   task.status === 'DONE' ? 'Feito' :
+                   'Não iniciado'}
                 </div>
               </div>
             </div>
