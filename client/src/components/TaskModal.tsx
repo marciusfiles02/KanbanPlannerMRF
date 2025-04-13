@@ -234,6 +234,34 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Atualizar Data de Término quando a Data de Início ou Prazo mudar */}
+            {React.useEffect(() => {
+              const startDate = form.watch("startDate");
+              const deadlineDays = form.watch("deadlineDays");
+              
+              if (startDate && deadlineDays) {
+                let newDueDate = addDays(new Date(startDate), deadlineDays);
+                form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
+              }
+            }, [form.watch("startDate"), form.watch("deadlineDays")]);
+            
+            {/* Verificar se a Data de Início é válida */}
+            {React.useEffect(() => {
+              const startDate = form.watch("startDate");
+              const predecessorId = form.watch("predecessorId");
+              
+              if (startDate && predecessorId) {
+                const predecessorTask = allTasks.find(t => t.id === predecessorId);
+                if (predecessorTask) {
+                  const minStartDate = addDays(new Date(predecessorTask.dueDate), 1);
+                  const currentStartDate = new Date(startDate);
+                  
+                  if (currentStartDate < minStartDate) {
+                    form.setValue("startDate", format(minStartDate, "yyyy-MM-dd"));
+                  }
+                }
+              }
+            }, [form.watch("startDate"), form.watch("predecessorId")]);
             <FormField
               control={form.control}
               name="title"
@@ -333,7 +361,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                   <FormItem>
                     <FormLabel>Data de Término</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} disabled />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
