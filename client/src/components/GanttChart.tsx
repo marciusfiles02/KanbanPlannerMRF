@@ -52,17 +52,18 @@ export function GanttChart({ tasks }: GanttChartProps) {
                   {format(parseISO(task.startDate.toString()), 'dd/MM/yyyy')} - {format(parseISO(task.dueDate.toString()), 'dd/MM/yyyy')}
                 </div>
                 <div className={`text-xs px-2 py-0.5 rounded-full ${
-                  task.status === 'NOT_STARTED' ? 'bg-neutral-100 text-neutral-700' :
-                  task.status === 'IN_PROGRESS' ? 'bg-orange-50 text-orange-700' :
-                  task.status === 'PAUSED' ? 'bg-red-50 text-red-700' :
-                  task.status === 'DONE' ? 'bg-green-50 text-green-700' :
+                  task.column === 'BACKLOG' || task.column === 'TODO' ? 'bg-neutral-100 text-neutral-700' :
+                  task.column === 'IN_PROGRESS' ? 'bg-orange-50 text-orange-700' :
+                  task.column === 'REVIEW' ? 'bg-red-50 text-red-700' :
+                  task.column === 'DONE' ? 'bg-green-50 text-green-700' :
                   'bg-neutral-100 text-neutral-700'
                 }`}>
-                  {task.status === 'NOT_STARTED' ? 'Não iniciado' :
-                   task.status === 'IN_PROGRESS' ? 'Fazendo' :
-                   task.status === 'PAUSED' ? 'Parado' :
-                   task.status === 'DONE' ? 'Concluído' :
-                   'Não iniciado'}
+                  {task.column === 'BACKLOG' ? 'Backlog' :
+                   task.column === 'TODO' ? 'A Fazer' :
+                   task.column === 'IN_PROGRESS' ? 'Fazendo' :
+                   task.column === 'REVIEW' ? 'Em Revisão' :
+                   task.column === 'DONE' ? 'Concluído' :
+                   'Backlog'}
                 </div>
               </div>
             </div>
