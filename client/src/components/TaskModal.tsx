@@ -243,14 +243,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
         }
       }
     }
-        const minStartDate = addDays(new Date(predecessorTask.dueDate), 1);
-        const currentStartDate = new Date(startDate);
-        
-        if (currentStartDate < minStartDate) {
-          form.setValue("startDate", format(minStartDate, "yyyy-MM-dd"));
-        }
-      }
-    }
+  }, [form.watch("startDate"), form.watch("dueDate"), form.watch("predecessorId")]);
   }, [form.watch("startDate"), form.watch("dueDate"), form.watch("predecessorId")]);
 
   return (
