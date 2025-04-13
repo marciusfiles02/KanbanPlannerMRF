@@ -82,11 +82,8 @@ export default function Home() {
 
     if (!task) return;
 
-    // Atualizar a coluna (e possivelmente o status) da tarefa
+    // Atualizar a coluna e o status da tarefa
     const newColumn = destination.droppableId as KanbanColumn;
-    const newStatus = columnToStatusMap[newColumn];
-
-    // Determinar o novo status baseado na coluna
     const newStatus = columnToStatusMap[newColumn];
 
     // Otimisticamente atualizar o UI
