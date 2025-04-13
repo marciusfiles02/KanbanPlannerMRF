@@ -246,7 +246,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Editar Tarefa" : "Nova Tarefa"}</DialogTitle>
           <p className="text-sm text-muted-foreground pt-2">
@@ -270,69 +270,88 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Descreva a tarefa" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="predecessorId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tarefa Predecessora</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      const newValue = value === "null" ? null : Number(value);
-                      field.onChange(newValue);
-
-                      if (newValue) {
-                        const predecessorTask = allTasks.find(t => t.id === newValue);
-                        if (predecessorTask) {
-                          let nextDay = addDays(new Date(predecessorTask.dueDate), 1);
-
-                          while (isWeekend(nextDay)) {
-                            nextDay = addDays(nextDay, 1);
-                          }
-
-                          form.setValue("startDate", format(nextDay, "yyyy-MM-dd"));
-                        }
-                      }
-                    }}
-                    value={field.value?.toString() || "null"}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma tarefa predecessora (opcional)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="null">Nenhuma</SelectItem>
-                      {allTasks
-                        .filter(t => !task || t.id !== task.id)
-                        .map(t => (
-                          <SelectItem key={t.id} value={t.id.toString()}>
-                            {t.taskCode ? `[${t.taskCode}] ` : ''}{t.title}
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Descrição</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Descreva a tarefa" className="h-20" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="predecessorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tarefa Predecessora</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const newValue = value === "null" ? null : Number(value);
+                        field.onChange(newValue);
+
+                        if (newValue) {
+                          const predecessorTask = allTasks.find(t => t.id === newValue);
+                          if (predecessorTask) {
+                            let nextDay = addDays(new Date(predecessorTask.dueDate), 1);
+
+                            while (isWeekend(nextDay)) {
+                              nextDay = addDays(nextDay, 1);
+                            }
+
+                            form.setValue("startDate", format(nextDay, "yyyy-MM-dd"));
+                          }
+                        }
+                      }}
+                      value={field.value?.toString() || "null"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione uma tarefa predecessora (opcional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="null">Nenhuma</SelectItem>
+                        {allTasks
+                          .filter(t => !task || t.id !== task.id)
+                          .map(t => (
+                            <SelectItem key={t.id} value={t.id.toString()}>
+                              {t.taskCode ? `[${t.taskCode}] ` : ''}{t.title}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="deadlineDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prazo (em dias)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="1"
+                        placeholder="Digite o prazo em dias"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="startDate"
@@ -362,25 +381,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="deadlineDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Prazo (em dias)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      min="1"
-                      placeholder="Digite o prazo em dias"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
 
             <FormField
               control={form.control}
