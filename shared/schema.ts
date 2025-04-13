@@ -50,6 +50,7 @@ export const tasks = pgTable("tasks", {
   predecessorId: integer("predecessor_id"), // ID da tarefa predecessora
   startDate: timestamp("start_date").notNull(),
   dueDate: timestamp("due_date").notNull(),
+  deadlineDays: integer("deadline_days"),
   progress: integer("progress").notNull().default(0),
   status: text("status").notNull().default(TASK_STATUS.NOT_STARTED),
   color: text("color").notNull().default(TASK_COLORS.BLUE),

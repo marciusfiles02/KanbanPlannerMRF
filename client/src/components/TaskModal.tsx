@@ -77,8 +77,9 @@ const formSchema = z.object({
     message: "A data de início é obrigatória",
   }),
   dueDate: z.string().refine((date) => !!date, {
-    message: "O prazo é obrigatório",
+    message: "A data de término é obrigatória",
   }),
+  deadlineDays: z.number().min(1, "O prazo deve ser de pelo menos 1 dia").nullable().optional(),
   progress: z.number().min(0).max(100),
   status: z.enum([
     TASK_STATUS.NOT_STARTED,
@@ -330,7 +331,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prazo</FormLabel>
+                    <FormLabel>Data de Término</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -339,6 +340,26 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                 )}
               />
             </div>
+            
+            <FormField
+              control={form.control}
+              name="deadlineDays"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Prazo (em dias)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      min="1"
+                      placeholder="Digite o prazo em dias"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

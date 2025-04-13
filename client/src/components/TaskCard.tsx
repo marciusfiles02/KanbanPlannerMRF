@@ -88,7 +88,8 @@ export function TaskCard({ task, index, onEdit, onDelete, allTasks = [] }: TaskC
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              {formatDate(task.dueDate)}
+              Data de Término: {formatDate(task.dueDate)}
+              {task.deadlineDays && <span className="ml-2">({task.deadlineDays} dias)</span>}
             </div>
           </div>
           
