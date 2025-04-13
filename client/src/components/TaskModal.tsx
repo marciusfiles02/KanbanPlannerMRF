@@ -236,34 +236,37 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <React.Fragment>
               {/* Atualizar Data de Término quando a Data de Início ou Prazo mudar */}
-              {useEffect(() => {
-                const startDate = form.watch("startDate");
-                const deadlineDays = form.watch("deadlineDays");
-                
-                if (startDate && deadlineDays) {
-                  let newDueDate = addDays(new Date(startDate), deadlineDays);
-                  form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
-                }
-              }, [form.watch("startDate"), form.watch("deadlineDays")])}
-            </React.Fragment>
-            
-            {/* Verificar se a Data de Início é válida */}
-            {React.useEffect(() => {
-              const startDate = form.watch("startDate");
-              const predecessorId = form.watch("predecessorId");
-              
-              if (startDate && predecessorId) {
-                const predecessorTask = allTasks.find(t => t.id === predecessorId);
-                if (predecessorTask) {
-                  const minStartDate = addDays(new Date(predecessorTask.dueDate), 1);
-                  const currentStartDate = new Date(startDate);
+              <React.Fragment>
+                {useEffect(() => {
+                  const startDate = form.watch("startDate");
+                  const deadlineDays = form.watch("deadlineDays");
                   
-                  if (currentStartDate < minStartDate) {
-                    form.setValue("startDate", format(minStartDate, "yyyy-MM-dd"));
+                  if (startDate && deadlineDays) {
+                    let newDueDate = addDays(new Date(startDate), deadlineDays);
+                    form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
                   }
-                }
-              }
-            }, [form.watch("startDate"), form.watch("predecessorId")]);
+                }, [form.watch("startDate"), form.watch("deadlineDays")])}
+              </React.Fragment>
+              
+              {/* Verificar se a Data de Início é válida */}
+              <React.Fragment>
+                {useEffect(() => {
+                  const startDate = form.watch("startDate");
+                  const predecessorId = form.watch("predecessorId");
+                  
+                  if (startDate && predecessorId) {
+                    const predecessorTask = allTasks.find(t => t.id === predecessorId);
+                    if (predecessorTask) {
+                      const minStartDate = addDays(new Date(predecessorTask.dueDate), 1);
+                      const currentStartDate = new Date(startDate);
+                      
+                      if (currentStartDate < minStartDate) {
+                        form.setValue("startDate", format(minStartDate, "yyyy-MM-dd"));
+                      }
+                    }
+                  }
+                }, [form.watch("startDate"), form.watch("predecessorId")])}
+              </React.Fragment>
             <FormField
               control={form.control}
               name="title"
