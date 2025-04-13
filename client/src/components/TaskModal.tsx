@@ -246,7 +246,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-3xl max-h-[85vh]">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Editar Tarefa" : "Nova Tarefa"}</DialogTitle>
           <p className="text-sm text-muted-foreground pt-2">
