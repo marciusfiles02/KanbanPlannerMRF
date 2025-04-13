@@ -267,7 +267,24 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                 <FormItem>
                   <FormLabel>Tarefa Predecessora</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(value === "null" ? null : Number(value))}
+                    onValueChange={(value) => {
+                      const newValue = value === "null" ? null : Number(value);
+                      field.onChange(newValue);
+                      
+                      if (newValue) {
+                        const predecessorTask = allTasks.find(t => t.id === newValue);
+                        if (predecessorTask) {
+                          let nextDay = addDays(new Date(predecessorTask.dueDate), 1);
+                          
+                          // Ajustar para o próximo dia útil se cair no fim de semana
+                          while (isWeekend(nextDay)) {
+                            nextDay = addDays(nextDay, 1);
+                          }
+                          
+                          form.setValue("startDate", format(nextDay, "yyyy-MM-dd"));
+                        }
+                      }
+                    }}
                     value={field.value?.toString() || "null"}
                   >
                     <FormControl>

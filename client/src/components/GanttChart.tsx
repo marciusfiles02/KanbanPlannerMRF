@@ -1,14 +1,13 @@
+
 import { Task } from "@shared/schema";
-import { format, addDays, eachDayOfInterval, parseISO, differenceInDays } from "date-fns";
+import { format, addDays, eachDayOfInterval, parseISO, differenceInDays, isWeekend } from "date-fns";
 import { getColorById } from "@/types";
-import { CheckIcon } from "lucide-react";
 
 interface GanttChartProps {
   tasks: Task[];
 }
 
 export function GanttChart({ tasks }: GanttChartProps) {
-  // Se não houver tarefas, mostrar mensagem
   if (tasks.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 bg-neutral-50 rounded-lg p-4 text-neutral-500">
@@ -17,7 +16,6 @@ export function GanttChart({ tasks }: GanttChartProps) {
     );
   }
 
-  // Encontrar a data mais antiga e a mais recente para definir o intervalo do gráfico
   const allDates = tasks.flatMap(task => [
     parseISO(task.startDate.toString()), 
     parseISO(task.dueDate.toString())
@@ -26,27 +24,40 @@ export function GanttChart({ tasks }: GanttChartProps) {
   const minDate = new Date(Math.min(...allDates.map(date => date.getTime())));
   const maxDate = new Date(Math.max(...allDates.map(date => date.getTime())));
   
-  // Adicionar uma margem de alguns dias
   const startDate = addDays(minDate, -1);
   const endDate = addDays(maxDate, 3);
   
-  // Gerar dias para exibir no cabeçalho
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
-  // Ordenar tarefas por data de início
   const sortedTasks = [...tasks].sort((a, b) => 
     parseISO(a.startDate.toString()).getTime() - parseISO(b.startDate.toString()).getTime()
   );
 
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[800px]">
-        {/* Cabeçalho do gráfico */}
-        <div className="flex border-b border-neutral-200 bg-neutral-100">
-          <div className="w-64 p-3 font-medium border-r border-neutral-200">
+      <div className="min-w-[800px] flex">
+        {/* Coluna fixa */}
+        <div className="w-64 flex-shrink-0 bg-white z-10 border-r border-neutral-200">
+          <div className="border-b border-neutral-200 bg-neutral-100 p-3 font-medium">
             Tarefa
           </div>
-          <div className="flex-1 flex">
+          {sortedTasks.map((task) => (
+            <div key={task.id} className="border-b border-neutral-200 p-3">
+              <div className="font-medium truncate">
+                {task.taskCode && <span className="text-xs font-mono bg-neutral-100 px-1 py-0.5 rounded mr-1">#{task.taskCode}</span>}
+                {task.title}
+              </div>
+              <div className="text-xs text-neutral-500 mt-1">
+                {format(parseISO(task.startDate.toString()), 'dd/MM/yyyy')} - {format(parseISO(task.dueDate.toString()), 'dd/MM/yyyy')}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Área do gráfico com rolagem */}
+        <div className="flex-1">
+          {/* Cabeçalho dos dias */}
+          <div className="flex border-b border-neutral-200 bg-neutral-100">
             {days.map((day, index) => (
               <div 
                 key={index} 
@@ -59,59 +70,67 @@ export function GanttChart({ tasks }: GanttChartProps) {
               </div>
             ))}
           </div>
-        </div>
-        
-        {/* Corpo do gráfico com as tarefas */}
-        <div>
-          {sortedTasks.map((task) => {
-            const startDateObj = parseISO(task.startDate.toString());
-            const dueDateObj = parseISO(task.dueDate.toString());
-            const color = getColorById(task.color as any);
-            
-            // Calcular a posição e largura da barra
-            const taskStart = Math.max(
-              0,
-              differenceInDays(startDateObj, startDate)
-            );
-            const taskDuration = Math.max(
-              1,
-              differenceInDays(dueDateObj, startDateObj) + 1
-            );
-            
-            return (
-              <div key={task.id} className="flex border-b border-neutral-200 hover:bg-neutral-50">
-                <div className="w-64 p-3 text-sm border-r border-neutral-200 flex flex-col justify-center truncate">
-                  <div className="font-medium truncate">
-                    {task.taskCode && <span className="text-xs font-mono bg-neutral-100 px-1 py-0.5 rounded mr-1">#{task.taskCode}</span>}
-                    {task.title}
-                  </div>
-                  <div className="text-xs text-neutral-500 mt-1">
-                    {format(startDateObj, 'dd/MM/yyyy')} - {format(dueDateObj, 'dd/MM/yyyy')}
-                  </div>
-                </div>
-                <div className="flex-1 flex relative py-2">
-                  <div 
-                    className={`absolute h-8 rounded-md ${color.bgClass} ${color.borderClass} flex items-center justify-center text-xs text-white font-medium`}
-                    style={{ 
-                      left: `${taskStart * 56}px`,
-                      width: `${taskDuration * 56 - 8}px`,
-                      opacity: 0.8
-                    }}
-                  >
-                    {task.progress}%
-                  </div>
-                  {days.map((day, index) => (
+          
+          {/* Corpo do gráfico com as tarefas */}
+          <div>
+            {sortedTasks.map((task, taskIndex) => {
+              const startDateObj = parseISO(task.startDate.toString());
+              const dueDateObj = parseISO(task.dueDate.toString());
+              const color = getColorById(task.color as any);
+              
+              const taskStart = Math.max(0, differenceInDays(startDateObj, startDate));
+              const taskDuration = Math.max(1, differenceInDays(dueDateObj, startDateObj) + 1);
+              
+              // Encontrar tarefa predecessora
+              const predecessorTask = task.predecessorId 
+                ? tasks.find(t => t.id === task.predecessorId)
+                : null;
+              
+              return (
+                <div key={task.id} className="relative flex border-b border-neutral-200 hover:bg-neutral-50" style={{ height: '64px' }}>
+                  {/* Linhas de conexão com a tarefa predecessora */}
+                  {predecessorTask && (
+                    <svg
+                      className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                      style={{ zIndex: 1 }}
+                    >
+                      <path
+                        d={`M ${predecessorTask ? (differenceInDays(parseISO(predecessorTask.dueDate.toString()), startDate) * 56) : 0} 32
+                           H ${taskStart * 56}`}
+                        stroke="#94a3b8"
+                        strokeWidth="2"
+                        fill="none"
+                        strokeDasharray="4"
+                      />
+                    </svg>
+                  )}
+                  
+                  {/* Barra da tarefa */}
+                  <div className="flex-1 flex relative py-2">
                     <div 
-                      key={index} 
-                      className={`w-14 border-r border-neutral-200 ${
-                        day.getDay() === 0 || day.getDay() === 6 ? 'bg-neutral-100' : ''
-                      }`}
-                    />
-                  ))}
+                      className={`absolute h-8 rounded-md ${color.bgClass} ${color.borderClass} flex items-center justify-center text-xs text-white font-medium`}
+                      style={{ 
+                        left: `${taskStart * 56}px`,
+                        width: `${taskDuration * 56 - 8}px`,
+                        opacity: 0.8,
+                        zIndex: 2
+                      }}
+                    >
+                      {task.progress}%
+                    </div>
+                    {days.map((day, index) => (
+                      <div 
+                        key={index} 
+                        className={`w-14 border-r border-neutral-200 ${
+                          day.getDay() === 0 || day.getDay() === 6 ? 'bg-neutral-100' : ''
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
