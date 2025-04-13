@@ -222,18 +222,27 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     const dueDate = form.watch("dueDate");
     const predecessorId = form.watch("predecessorId");
     
-    if (startDate && dueDate) {
-      const currentStartDate = new Date(startDate);
-      const currentDueDate = new Date(dueDate);
+    if (!startDate || !dueDate) return;
 
-      if (currentStartDate >= currentDueDate) {
-        form.setValue("startDate", format(addDays(currentDueDate, -1), "yyyy-MM-dd"));
-      }
+    const currentStartDate = new Date(startDate);
+    const currentDueDate = new Date(dueDate);
+
+    // Verificar se a data de início é posterior à data de término
+    if (currentStartDate >= currentDueDate) {
+      form.setValue("startDate", format(addDays(currentDueDate, -1), "yyyy-MM-dd"));
+      return;
     }
 
-    if (startDate && predecessorId) {
+    // Se houver predecessor, verificar a data de término dele
+    if (predecessorId) {
       const predecessorTask = allTasks.find(t => t.id === predecessorId);
       if (predecessorTask) {
+        const predecessorDueDate = new Date(predecessorTask.dueDate);
+        if (currentStartDate <= predecessorDueDate) {
+          form.setValue("startDate", format(addDays(predecessorDueDate, 1), "yyyy-MM-dd"));
+        }
+      }
+    }
         const minStartDate = addDays(new Date(predecessorTask.dueDate), 1);
         const currentStartDate = new Date(startDate);
         

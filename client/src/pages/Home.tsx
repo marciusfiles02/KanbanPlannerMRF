@@ -86,6 +86,9 @@ export default function Home() {
     const newColumn = destination.droppableId as KanbanColumn;
     const newStatus = columnToStatusMap[newColumn];
 
+    // Determinar o novo status baseado na coluna
+    const newStatus = columnToStatusMap[newColumn];
+
     // Otimisticamente atualizar o UI
     queryClient.setQueryData(['/api/tasks'], (oldData: Task[] | undefined) => {
       if (!oldData) return [];
