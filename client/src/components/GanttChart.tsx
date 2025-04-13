@@ -47,8 +47,20 @@ export function GanttChart({ tasks }: GanttChartProps) {
                 {task.taskCode && <span className="text-xs font-mono bg-neutral-100 px-1 py-0.5 rounded mr-1">#{task.taskCode}</span>}
                 {task.title}
               </div>
-              <div className="text-xs text-neutral-500 mt-1">
-                {format(parseISO(task.startDate.toString()), 'dd/MM/yyyy')} - {format(parseISO(task.dueDate.toString()), 'dd/MM/yyyy')}
+              <div className="flex items-center justify-between mt-1">
+                <div className="text-xs text-neutral-500">
+                  {format(parseISO(task.startDate.toString()), 'dd/MM/yyyy')} - {format(parseISO(task.dueDate.toString()), 'dd/MM/yyyy')}
+                </div>
+                <div className={`text-xs px-2 py-0.5 rounded-full ${
+                  task.status === 'NOT_STARTED' ? 'bg-neutral-100 text-neutral-700' :
+                  task.status === 'IN_PROGRESS' ? 'bg-orange-50 text-orange-700' :
+                  task.status === 'PAUSED' ? 'bg-red-50 text-red-700' :
+                  'bg-green-50 text-green-700'
+                }`}>
+                  {task.status === 'NOT_STARTED' ? 'Não iniciado' :
+                   task.status === 'IN_PROGRESS' ? 'Fazendo' :
+                   task.status === 'PAUSED' ? 'Parado' : 'Feito'}
+                </div>
               </div>
             </div>
           ))}
