@@ -246,7 +246,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[85vh]">
+      <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Editar Tarefa" : "Nova Tarefa"}</DialogTitle>
           <p className="text-sm text-muted-foreground pt-2">
@@ -255,7 +255,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormField
               control={form.control}
               name="title"
