@@ -45,6 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format, isValid, parseISO, addDays, isWeekend } from "date-fns";
 
 interface TaskModalProps {
   open: boolean;
@@ -104,7 +105,7 @@ const formSchema = z.object({
 export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModalProps) {
   const { toast } = useToast();
   const isEditing = !!task;
-  
+
   // Definir form com react-hook-form e zod
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -154,7 +155,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     startDate: Date;
     dueDate: Date;
   };
-  
+
   // Mutação para criar nova tarefa
   const createTaskMutation = useMutation({
     mutationFn: async (data: FormattedData) => {
@@ -229,7 +230,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
             {isEditing ? "Edite os detalhes da tarefa abaixo" : "Preencha os detalhes da nova tarefa"}
           </p>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -270,17 +271,17 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                     onValueChange={(value) => {
                       const newValue = value === "null" ? null : Number(value);
                       field.onChange(newValue);
-                      
+
                       if (newValue) {
                         const predecessorTask = allTasks.find(t => t.id === newValue);
                         if (predecessorTask) {
                           let nextDay = addDays(new Date(predecessorTask.dueDate), 1);
-                          
+
                           // Ajustar para o próximo dia útil se cair no fim de semana
                           while (isWeekend(nextDay)) {
                             nextDay = addDays(nextDay, 1);
                           }
-                          
+
                           form.setValue("startDate", format(nextDay, "yyyy-MM-dd"));
                         }
                       }
