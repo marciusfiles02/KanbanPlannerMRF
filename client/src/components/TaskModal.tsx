@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -209,7 +208,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
   useEffect(() => {
     const startDate = form.watch("startDate");
     const deadlineDays = form.watch("deadlineDays");
-    
+
     if (startDate && deadlineDays) {
       let newDueDate = addDays(new Date(startDate), deadlineDays);
       form.setValue("dueDate", format(newDueDate, "yyyy-MM-dd"));
@@ -221,7 +220,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
     const startDate = form.watch("startDate");
     const dueDate = form.watch("dueDate");
     const predecessorId = form.watch("predecessorId");
-    
+
     if (!startDate || !dueDate) return;
 
     const currentStartDate = new Date(startDate);
@@ -243,7 +242,6 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
         }
       }
     }
-  }, [form.watch("startDate"), form.watch("dueDate"), form.watch("predecessorId")]);
   }, [form.watch("startDate"), form.watch("dueDate"), form.watch("predecessorId")]);
 
   return (
@@ -363,7 +361,7 @@ export function TaskModal({ open, onOpenChange, task, allTasks = [] }: TaskModal
                 )}
               />
             </div>
-            
+
             <FormField
               control={form.control}
               name="deadlineDays"
